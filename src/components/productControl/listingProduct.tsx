@@ -23,6 +23,7 @@ type Product = {
   githubURL?: string;
   status: "PENDING" | "DECLINED" | "PUBLISHED";
   walletAddress: string;
+  onDelete: (name: string) => void;
 };
 
 const ProjectCard = ({
@@ -30,11 +31,13 @@ const ProjectCard = ({
   onApprove,
   onDecline,
   onClick,
+  onDelete,
 }: {
   product: Product;
   onApprove: (name: string) => void;
   onDecline: (name: string) => void;
   onClick: () => void;
+  onDelete: (name: string) => void;
 }) => {
   const [isHovered, setIsHovered] = useState(false);
 
@@ -153,6 +156,16 @@ const ProjectCard = ({
                 </Button>
               </>
             )}
+            {(product.status === "DECLINED" ||
+              product.status === "PUBLISHED") && (
+              <Button
+                size="sm"
+                className="bg-destructive/80 cursor-pointer hover:bg-destructive text-white text-xs"
+                onClick={() => onDelete(product.name)}
+              >
+                Delete
+              </Button>
+            )}
           </div>
 
           <div className="mt-2 text-xs text-muted-foreground">
@@ -171,7 +184,6 @@ const ProjectCardGrid = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState<boolean>(true);
   const baseUrl = import.meta.env.VITE_ENDPOINT_URL;
-
 
   const fetchProjects = async () => {
     setLoading(true);
@@ -213,6 +225,19 @@ const ProjectCardGrid = () => {
     }
   };
 
+  const deleteProduct = async (productName: string) => {
+    try {
+      await axios.delete(`${baseUrl}/api/products/${productName}/delete`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+      fetchProjects(); // Refresh the product list
+    } catch (err) {
+      console.error("Failed to delete product", err);
+    }
+  };
+
   useEffect(() => {
     fetchProjects();
   }, []);
@@ -232,6 +257,7 @@ const ProjectCardGrid = () => {
               onClick={() => navigate(`/${product.uuid}`)}
               onApprove={() => updateStatus(product.name, "PUBLISHED")}
               onDecline={() => updateStatus(product.name, "DECLINED")}
+              onDelete={() => deleteProduct(product.name)}
             />
           ))}
         </div>
