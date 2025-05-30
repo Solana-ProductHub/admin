@@ -130,7 +130,7 @@ const ProjectCard = ({
               variant="ghost"
               size="sm"
               onClick={onClick}
-              className="h-8 cursor-pointer gap-1 text-xs font-medium text-primary hover:text-primary"
+              className="h-8 cursor-pointer border gap-1 text-xs font-medium text-primary hover:text-primary"
             >
               View
               <ArrowUpRight className="h-3 w-3" />
